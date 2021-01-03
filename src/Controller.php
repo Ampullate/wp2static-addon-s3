@@ -4,10 +4,7 @@ namespace WP2StaticS3;
 
 class Controller {
     public function run() : void {
-        add_filter(
-            'wp2static_add_menu_items',
-            [ 'WP2StaticS3\Controller', 'addSubmenuPage' ]
-        );
+        add_filter( 'wp2static_add_menu_items', [ 'WP2StaticS3\Controller', 'addSubmenuPage' ] );
 
         add_action(
             'admin_post_wp2static_s3_save_options',
@@ -42,7 +39,7 @@ class Controller {
         if ( defined( 'WP_CLI' ) ) {
             \WP_CLI::add_command(
                 'wp2static s3',
-                [ CLI::class, 's3' ]
+                [ 'WP2StaticS3\CLI', 's3' ]
             );
         }
     }
@@ -218,6 +215,16 @@ class Controller {
         );
 
         $wpdb->query( $query );
+
+        $query = $wpdb->prepare(
+            $query_string,
+            'definedByConstant',
+            '',
+            'This value has been defined by the site admin in a PHP constant',
+            ''
+        );
+
+        $wpdb->query( $query );
     }
 
     /**
@@ -241,6 +248,14 @@ class Controller {
         self::seedOptions();
 
         $view = [];
+        $view['s3BucketInConstant'] = self::isS3BucketDefinedInConstant();
+        $view['s3Bucket'] = self::getS3Bucket();
+        $view['s3RegionInConstant'] = self::isS3RegionDefinedInConstant();
+        $view['s3Region'] = self::getS3Region();
+        $view['s3KeyInConstant'] = self::isS3AccessKeyIdDefinedInConstant();
+        $view['s3SecretInConstant'] = self::isS3SecretAccessKeyDefinedInConstant();
+        $view['cloudfrontKeyInConstant'] = self::isCloudfrontAccessKeyIdDefinedInConstant();
+        $view['cloudfrontSecretInConstant'] = self::isCloudfrontSecretAccessKeyDefinedInConstant();
         $view['nonce_action'] = 'wp2static-s3-options';
         $view['uploads_path'] = \WP2Static\SiteInfo::getPath( 'uploads' );
         $s3_path = \WP2Static\SiteInfo::getPath( 'uploads' ) . 'wp2static-processed-site.s3';
@@ -380,22 +395,26 @@ class Controller {
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['s3Bucket'] ) ],
+                [ 'value' => (array_key_exists( 's3Bucket', $_POST ) ? sanitize_text_field( $_POST['s3Bucket'] ) : '') ],
             [ 'name' => 's3Bucket' ]
         );
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['s3AccessKeyID'] ) ],
+            [ 'value' => (array_key_exists( 's3AccessKeyID', $_POST ) ? sanitize_text_field( $_POST['s3AccessKeyID'] ) : '') ],
             [ 'name' => 's3AccessKeyID' ]
         );
 
-        $secret_access_key =
-            $_POST['s3SecretAccessKey'] ?
-            \WP2Static\CoreOptions::encrypt_decrypt(
-                'encrypt',
-                sanitize_text_field( $_POST['s3SecretAccessKey'] )
-            ) : '';
+        if ( array_key_exists( 's3SecretAccessKey', $_POST ) ) {
+            $secret_access_key =
+                $_POST['s3SecretAccessKey'] ?
+                \WP2Static\CoreOptions::encrypt_decrypt(
+                    'encrypt',
+                    sanitize_text_field( $_POST['s3SecretAccessKey'] )
+                ) : '';
+        } else {
+            $secret_access_key = '';
+        }
 
         $wpdb->update(
             $table_name,
@@ -405,16 +424,20 @@ class Controller {
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['cfAccessKeyID'] ) ],
+            [ 'value' => (array_key_exists( 'cfAccessKeyID', $_POST ) ? sanitize_text_field( $_POST['cfAccessKeyID'] ) : '') ],
             [ 'name' => 'cfAccessKeyID' ]
         );
 
-        $secret_access_key =
-            $_POST['cfSecretAccessKey'] ?
-            \WP2Static\CoreOptions::encrypt_decrypt(
-                'encrypt',
-                sanitize_text_field( $_POST['cfSecretAccessKey'] )
-            ) : '';
+        if ( array_key_exists( 'cfSecretAccessKey', $_POST ) ) {
+            $secret_access_key =
+                $_POST['cfSecretAccessKey'] ?
+                \WP2Static\CoreOptions::encrypt_decrypt(
+                    'encrypt',
+                    sanitize_text_field( $_POST['cfSecretAccessKey'] )
+                ) : '';
+        } else {
+            $secret_access_key = '';
+        }
 
         $wpdb->update(
             $table_name,
@@ -424,7 +447,7 @@ class Controller {
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['s3Region'] ) ],
+                [ 'value' => (array_key_exists( 's3Region', $_POST ) ? sanitize_text_field( $_POST['s3Region'] ) : '') ],
             [ 'name' => 's3Region' ]
         );
 
@@ -460,7 +483,7 @@ class Controller {
 
         $wpdb->update(
             $table_name,
-            [ 'value' => sanitize_text_field( $_POST['s3ObjectACL'] ) ],
+                [ 'value' => sanitize_text_field( $_POST['s3ObjectACL'] ) ],
             [ 'name' => 's3ObjectACL' ]
         );
 
@@ -496,6 +519,58 @@ class Controller {
         }
 
         return $option_value;
+    }
+
+    public static function isS3BucketDefinedInConstant() : bool {
+        return defined( 'STATIC_S3_BUCKET' );
+    }
+
+    public static function getS3Bucket() : string {
+        return defined( 'STATIC_S3_BUCKET' ) ? STATIC_S3_BUCKET : getValue( 's3Bucket' );
+    }
+
+    public static function isS3RegionDefinedInConstant() : bool {
+        return defined( 'STATIC_S3_BUCKET_REGION' );
+    }
+
+    public static function getS3Region() : string {
+        return defined( 'STATIC_S3_BUCKET_REGION' ) ? STATIC_S3_BUCKET_REGION : getValue( 's3Region' );
+    }
+
+    public static function isS3AccessKeyIdDefinedInConstant() : bool {
+        return defined( 'STATIC_S3_ACCESS_KEY' );
+    }
+
+    public static function getS3AccessKeyID() : string {
+        return defined( 'STATIC_S3_ACCESS_KEY' ) ? STATIC_S3_ACCESS_KEY : getValue( 's3AccessKeyID' );
+    }
+
+    public static function isS3SecretAccessKeyDefinedInConstant() : bool {
+        return defined( 'STATIC_S3_SECRET_KEY' );
+    }
+
+    public static function getS3SecretAccessKey() : string {
+        return defined( 'STATIC_S3_SECRET_KEY' ) ?
+            \WP2Static\CoreOptions::encrypt_decrypt(
+                'encrypt',
+                STATIC_S3_SECRET_KEY
+            ) : getValue( 's3SecretAccessKey' );
+    }
+
+    public static function isCloudfrontAccessKeyIdDefinedInConstant() : bool {
+        return defined( 'STATIC_CLOUDFRONT_ACCESS_KEY' );
+    }
+
+    public static function getCloudfrontAccessKeyID() : string {
+        return defined( 'STATIC_CLOUDFRONT_ACCESS_KEY' ) ? STATIC_CLOUDFRONT_ACCESS_KEY : getValue( 'cfAccessKeyID' );
+    }
+
+    public static function isCloudfrontSecretAccessKeyDefinedInConstant() : bool {
+        return defined( 'STATIC_CLOUDFRONT_SECRET_KEY' );
+    }
+
+    public static function getCloudfrontSecretAccessKey() : string {
+        return defined( 'STATIC_CLOUDFRONT_SECRET_KEY' ) ? STATIC_CLOUDFRONT_SECRET_KEY : getValue( 'cfSecretAccessKey' );
     }
 
     public function addOptionsPage() : void {

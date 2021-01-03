@@ -42,7 +42,7 @@ class Deployer {
 
         $object_acl = Controller::getValue( 's3ObjectACL' );
         $put_data = [
-            'Bucket' => Controller::getValue( 's3Bucket' ),
+            'Bucket' => Controller::getS3Bucket(),
             'ACL'    => $object_acl === '' ? 'public-read' : $object_acl,
         ];
 
@@ -67,7 +67,7 @@ class Deployer {
                 $cache_key = str_replace( $processed_site_path, '', $filename );
 
                 if ( ! $real_filepath ) {
-                    $err = 'Trying to deploy unknown file to S3: ' . $filename;
+                    $err = 'Not trying to deploy unknown file to S3: ' . $filename;
                     \WP2Static\WsLog::l( $err );
                     continue;
                 }
@@ -103,9 +103,9 @@ class Deployer {
                     $hash,
                 );
 
-                if ( $is_cached ) {
-                    continue;
-                }
+//                 if ( $is_cached ) {
+//                     continue;
+//                 }
 
                 $result = $s3->putObject( $put_data );
 
@@ -134,6 +134,8 @@ class Deployer {
 
             if ( mb_substr( $cache_key, -1 ) === '/' ) {
                 $cache_key = $cache_key . 'index.html';
+            } else if ( mb_strpos( $cache_key, '.', -11 ) === false ) {
+                $cache_key = trailingslashit( $cache_key ) . 'index.html';
             }
 
             $s3_key =
@@ -189,7 +191,7 @@ class Deployer {
     public static function s3Client() : \Aws\S3\S3Client {
         $client_options = [
             'version' => 'latest',
-            'region' => Controller::getValue( 's3Region' ),
+            'region' => Controller::getS3Region(),
         ];
 
         /*
@@ -200,15 +202,12 @@ class Deployer {
            - a credentials .ini file.
            - an IAM role.
          */
-        if (
-            Controller::getValue( 's3AccessKeyID' ) &&
-            Controller::getValue( 's3SecretAccessKey' )
-        ) {
+        if ( Controller::getS3AccessKeyID() && Controller::getS3SecretAccessKey() ) {
             $client_options['credentials'] = [
-                'key' => Controller::getValue( 's3AccessKeyID' ),
+                'key' => Controller::getS3AccessKeyID(),
                 'secret' => \WP2Static\CoreOptions::encrypt_decrypt(
                     'decrypt',
-                    Controller::getValue( 's3SecretAccessKey' )
+                    Controller::getS3SecretAccessKey()
                 ),
             ];
         } elseif ( Controller::getValue( 's3Profile' ) ) {
@@ -226,16 +225,13 @@ class Deployer {
                  - a credentials .ini file.
                  - an IAM role.
         */
-        if (
-            Controller::getValue( 'cfAccessKeyID' ) &&
-            Controller::getValue( 'cfSecretAccessKey' )
-        ) {
+        if ( Controller::getCloudfrontAccessKeyID() && Controller::getCloudfrontSecretAccessKey() ) {
             // Use the supplied access keys.
             $credentials = new \Aws\Credentials\Credentials(
-                Controller::getValue( 'cfAccessKeyID' ),
+                Controller::getCloudfrontAccessKeyID(),
                 \WP2Static\CoreOptions::encrypt_decrypt(
                     'decrypt',
-                    Controller::getValue( 'cfSecretAccessKey' )
+                    Controller::getCloudfrontSecretAccessKey()
                 )
             );
             $client = \Aws\CloudFront\CloudFrontClient::factory(

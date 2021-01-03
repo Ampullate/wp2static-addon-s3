@@ -17,15 +17,22 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['s3Bucket']->name; ?>"
-                ><?php echo $view['options']['s3Bucket']->label; ?></label>
+                ><?php echo $view['options']['s3Bucket']->label; ?></label><?php
+                if ($view['s3BucketInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['s3Bucket']->name; ?>"
-                    name="<?php echo $view['options']['s3Bucket']->name; ?>"
-                    type="text"
-                    value="<?php echo $view['options']['s3Bucket']->value !== '' ? $view['options']['s3Bucket']->value : ''; ?>"
-                />
+            <td><?php
+                if (!$view['s3BucketInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['s3Bucket']->name; ?>"
+                        name="<?php echo $view['options']['s3Bucket']->name; ?>"
+                        type="text"
+                        value="<?php echo $view['options']['s3Bucket']->value !== '' ? $view['options']['s3Bucket']->value : ''; ?>"
+                    /><?php
+                } else { ?>
+                    <input value="<?php echo $view['s3Bucket']; ?>" type="text" disabled="disabled" /><?php
+                } ?>
             </td>
         </tr>
 
@@ -33,15 +40,22 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['s3Region']->name; ?>"
-                ><?php echo $view['options']['s3Region']->label; ?></label>
+                ><?php echo $view['options']['s3Region']->label; ?></label><?php
+                if ($view['s3RegionInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['s3Region']->name; ?>"
-                    name="<?php echo $view['options']['s3Region']->name; ?>"
-                    type="text"
-                    value="<?php echo $view['options']['s3Region']->value !== '' ? $view['options']['s3Region']->value : ''; ?>"
-                />
+            <td><?php
+                if (!$view['s3RegionInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['s3Region']->name; ?>"
+                        name="<?php echo $view['options']['s3Region']->name; ?>"
+                        type="text"
+                        value="<?php echo $view['options']['s3Region']->value !== '' ? $view['options']['s3Region']->value : ''; ?>"
+                    /><?php
+                } else { ?>
+                    <input value="<?php echo $view['s3Region']; ?>" type="text" disabled="disabled" /><?php
+                } ?>
             </td>
         </tr>
 
@@ -49,14 +63,21 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['s3AccessKeyID']->name; ?>"
-                ><?php echo $view['options']['s3AccessKeyID']->label; ?></label>
+                ><?php echo $view['options']['s3AccessKeyID']->label; ?></label><?php
+                if ($view['s3KeyInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['s3AccessKeyID']->name; ?>"
-                    name="<?php echo $view['options']['s3AccessKeyID']->name; ?>"
-                    value="<?php echo $view['options']['s3AccessKeyID']->value !== '' ? $view['options']['s3AccessKeyID']->value : ''; ?>"
-                />
+            <td><?php
+                if (!$view['s3KeyInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['s3AccessKeyID']->name; ?>"
+                        name="<?php echo $view['options']['s3AccessKeyID']->name; ?>"
+                        value="<?php echo $view['options']['s3AccessKeyID']->value !== '' ? $view['options']['s3AccessKeyID']->value : ''; ?>"
+                    /><?php
+                } else { ?>
+                    ********************<?php
+                } ?>
             </td>
         </tr>
 
@@ -64,17 +85,24 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['s3SecretAccessKey']->name; ?>"
-                ><?php echo $view['options']['s3SecretAccessKey']->label; ?></label>
+                ><?php echo $view['options']['s3SecretAccessKey']->label; ?></label><?php
+                if ($view['s3SecretInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['s3SecretAccessKey']->name; ?>"
-                    name="<?php echo $view['options']['s3SecretAccessKey']->name; ?>"
-                    type="password"
-                    value="<?php echo $view['options']['s3SecretAccessKey']->value !== '' ?
-                        \WP2Static\CoreOptions::encrypt_decrypt('decrypt', $view['options']['s3SecretAccessKey']->value) :
-                        ''; ?>"
-                />
+            <td><?php
+                if (!$view['s3SecretInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['s3SecretAccessKey']->name; ?>"
+                        name="<?php echo $view['options']['s3SecretAccessKey']->name; ?>"
+                        type="password"
+                        value="<?php echo $view['options']['s3SecretAccessKey']->value !== '' ?
+                            \WP2Static\CoreOptions::encrypt_decrypt('decrypt', $view['options']['s3SecretAccessKey']->value) :
+                            ''; ?>"
+                    /><?php
+                } else { ?>
+                    ************************************<?php
+                } ?>
             </td>
         </tr>
 
@@ -177,14 +205,22 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['cfAccessKeyID']->name; ?>"
-                ><?php echo $view['options']['cfAccessKeyID']->label; ?></label>
+                ><?php echo $view['options']['cfAccessKeyID']->label; ?></label><?php
+                if ($view['cloudfrontKeyInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['cfAccessKeyID']->name; ?>"
-                    name="<?php echo $view['options']['cfAccessKeyID']->name; ?>"
-                    value="<?php echo $view['options']['cfAccessKeyID']->value !== '' ? $view['options']['cfAccessKeyID']->value : ''; ?>"
-                />
+            <td><?php
+                if (!$view['cloudfrontKeyInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['cfAccessKeyID']->name; ?>"
+                        name="<?php echo $view['options']['cfAccessKeyID']->name; ?>"
+                        type="text"
+                        value="<?php echo $view['options']['cfAccessKeyID']->value !== '' ? $view['options']['cfAccessKeyID']->value : ''; ?>"
+                    /><?php
+                } else { ?>
+                    ********************<?php
+                } ?>
             </td>
         </tr>
 
@@ -192,17 +228,24 @@
             <td style="width:50%;">
                 <label
                     for="<?php echo $view['options']['cfSecretAccessKey']->name; ?>"
-                ><?php echo $view['options']['cfSecretAccessKey']->label; ?></label>
+                ><?php echo $view['options']['cfSecretAccessKey']->label; ?></label><?php
+                if ($view['cloudfrontSecretInConstant']) { ?><br />
+                    <sup>*</sup> <em><?php echo $view['options']['definedByConstant']->label; ?></em><?php
+                } ?>
             </td>
-            <td>
-                <input
-                    id="<?php echo $view['options']['cfSecretAccessKey']->name; ?>"
-                    name="<?php echo $view['options']['cfSecretAccessKey']->name; ?>"
-                    type="password"
-                    value="<?php echo $view['options']['cfSecretAccessKey']->value !== '' ?
-                        \WP2Static\CoreOptions::encrypt_decrypt('decrypt', $view['options']['cfSecretAccessKey']->value) :
-                        ''; ?>"
-                />
+            <td><?php
+                if (!$view['cloudfrontSecretInConstant']) { ?>
+                    <input
+                        id="<?php echo $view['options']['cfSecretAccessKey']->name; ?>"
+                        name="<?php echo $view['options']['cfSecretAccessKey']->name; ?>"
+                        type="password"
+                        value="<?php echo $view['options']['cfSecretAccessKey']->value !== '' ?
+                            \WP2Static\CoreOptions::encrypt_decrypt('decrypt', $view['options']['cfSecretAccessKey']->value) :
+                            ''; ?>"
+                    /><?php
+                } else { ?>
+                    ************************************<?php
+                } ?>
             </td>
         </tr>
 
